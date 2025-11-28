@@ -1,21 +1,21 @@
-(function() {
-  // Configuration
-  const WIDGET_ID = 'feedback-widget-container';
-  
-  // Prevent duplicate initialization
-  if (document.getElementById(WIDGET_ID)) return;
+(function () {
+    // Configuration
+    const WIDGET_ID = 'feedback-widget-container';
 
-  // Create host element
-  const host = document.createElement('div');
-  host.id = WIDGET_ID;
-  document.body.appendChild(host);
+    // Prevent duplicate initialization
+    if (document.getElementById(WIDGET_ID)) return;
 
-  // Attach Shadow DOM to isolate styles
-  const shadow = host.attachShadow({ mode: 'open' });
+    // Create host element
+    const host = document.createElement('div');
+    host.id = WIDGET_ID;
+    document.body.appendChild(host);
 
-  // Styles
-  const style = document.createElement('style');
-  style.textContent = `
+    // Attach Shadow DOM to isolate styles
+    const shadow = host.attachShadow({ mode: 'open' });
+
+    // Styles
+    const style = document.createElement('style');
+    style.textContent = `
     :host {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       --primary-color: #2563eb;
@@ -201,9 +201,9 @@
     }
   `;
 
-  // HTML Structure
-  const container = document.createElement('div');
-  container.innerHTML = `
+    // HTML Structure
+    const container = document.createElement('div');
+    container.innerHTML = `
     <div class="widget-trigger" id="trigger">
       <svg viewBox="0 0 24 24">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
@@ -220,8 +220,8 @@
         </button>
         
         <div id="form-view">
-          <h2>Send Feedback</h2>
-          <p>How was your experience?</p>
+          <h2>Enviar Comentarios</h2>
+          <p>¿Cómo fue tu experiencia?</p>
           
           <div class="stars" id="stars">
             ${[1, 2, 3, 4, 5].map(i => `
@@ -231,101 +231,87 @@
             `).join('')}
           </div>
 
-          <textarea placeholder="Tell us more (optional)..." id="comment"></textarea>
+          <textarea placeholder="Cuéntanos más (opcional)..." id="comment"></textarea>
           
-          <button class="submit-btn" id="submit">Send Feedback</button>
+          <button class="submit-btn" id="submit">Enviar</button>
         </div>
 
         <div class="success-message" id="success-view">
           <svg class="success-icon" viewBox="0 0 24 24">
              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
           </svg>
-          <h3>Thank You!</h3>
-          <p>Your feedback helps us improve.</p>
+          <h3>¡Gracias!</h3>
+          <p>Tus comentarios nos ayudan a mejorar.</p>
         </div>
       </div>
     </div>
   `;
 
-  shadow.appendChild(style);
-  shadow.appendChild(container);
+    shadow.appendChild(style);
+    shadow.appendChild(container);
 
-  // Logic
-  const trigger = shadow.getElementById('trigger');
-  const overlay = shadow.getElementById('overlay');
-  const closeBtn = shadow.getElementById('close');
-  const submitBtn = shadow.getElementById('submit');
-  const starsContainer = shadow.getElementById('stars');
-  const stars = shadow.querySelectorAll('.star');
-  const comment = shadow.getElementById('comment');
-  const formView = shadow.getElementById('form-view');
-  const successView = shadow.getElementById('success-view');
+    // Logic
+    const trigger = shadow.getElementById('trigger');
+    const overlay = shadow.getElementById('overlay');
+    const closeBtn = shadow.getElementById('close');
+    const submitBtn = shadow.getElementById('submit');
+    const starsContainer = shadow.getElementById('stars');
+    const stars = shadow.querySelectorAll('.star');
+    const comment = shadow.getElementById('comment');
+    const formView = shadow.getElementById('form-view');
+    const successView = shadow.getElementById('success-view');
 
-  let rating = 0;
+    let rating = 0;
 
-  function openModal() {
-    overlay.classList.add('open');
-  }
+    function openModal() {
+        overlay.classList.add('open');
+    }
 
-  function closeModal() {
-    overlay.classList.remove('open');
-    // Reset after animation
-    setTimeout(() => {
-      formView.style.display = 'block';
-      successView.style.display = 'none';
-      rating = 0;
-      updateStars();
-      comment.value = '';
-    }, 300);
-  }
+    function closeModal() {
+        overlay.classList.remove('open');
+        // Reset after animation
+        setTimeout(() => {
+            formView.style.display = 'block';
+            successView.style.display = 'none';
+            rating = 0;
+            updateStars();
+            comment.value = '';
+        }, 300);
+    }
 
-  function updateStars() {
-    stars.forEach(star => {
-      const val = parseInt(star.dataset.value);
-      if (val <= rating) {
-        star.classList.add('active');
-      } else {
-        star.classList.remove('active');
-      }
+    function updateStars() {
+        stars.forEach(star => {
+            const val = parseInt(star.dataset.value);
+            if (val <= rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    trigger.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
     });
-  }
 
-  trigger.addEventListener('click', openModal);
-  closeBtn.addEventListener('click', closeModal);
-  
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal();
-  });
+    starsContainer.addEventListener('click', (e) => {
+        const star = e.target.closest('.star');
+        if (star) {
+            rating = parseInt(star.dataset.value);
+            updateStars();
+        };
 
-  starsContainer.addEventListener('click', (e) => {
-    const star = e.target.closest('.star');
-    if (star) {
-      rating = parseInt(star.dataset.value);
-      updateStars();
-    }
-  });
+        console.log('Feedback Submitted:', feedbackData);
 
-  submitBtn.addEventListener('click', () => {
-    if (rating === 0) {
-      alert('Please select a rating');
-      return;
-    }
+        // Show success
+        formView.style.display = 'none';
+        successView.style.display = 'block';
 
-    const feedbackData = {
-      rating,
-      comment: comment.value,
-      timestamp: new Date().toISOString(),
-      url: window.location.href
-    };
-
-    console.log('Feedback Submitted:', feedbackData);
-
-    // Show success
-    formView.style.display = 'none';
-    successView.style.display = 'block';
-
-    // Auto close
-    setTimeout(closeModal, 2000);
-  });
+        // Auto close
+        setTimeout(closeModal, 2000);
+    });
 
 })();
